@@ -80,10 +80,12 @@ runs:
       token: ${{ inputs.github-token }}
 
   - name: Update GitOps Repo
+    shell: bash
     run: |
       sed -i "/${{ inputs.target-option }}/s|image: .*|image: ${{ inputs.image }}|" ${{ inputs.gitops-repo-path }}/${{ inputs.gitops-repo-file }}
 
   - name: Commit and push changes
+    shell: bash
     run: |
       cd ${{ inputs.gitops-repo-path }}
       git config --local user.email "${{ inputs.committer-email }}"
