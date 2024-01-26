@@ -1,0 +1,69 @@
+name: 'Update GitOps Repo'
+description: 'Update GitOps Repo with new image changes'
+inputs:
+  target-option:
+    description: 'Target string to find editing line'
+    required: false
+    default: 'image'
+  image:
+    description: 'Image to update'
+    required: true
+  committer-name:
+    description: 'Committer Name'
+    required: true
+  committer-email:
+    description: 'Committer Email'
+    required: true
+  github-token:
+    description: 'Github Token'
+    required: true
+  gitops-repo:
+    description: 'GitOps Repo. Must be formatted as <org>/<repo>'
+    required: true
+  gitops-repo-path:
+    description: 'Path to Repo'
+    required: false
+    default: 'gitops'
+  gitops-repo-ref:
+    description: 'GitOps Repo Ref'
+    required: false
+    default: 'main'
+  gitops-repo-file:
+    description: 'GitOps Repo File'
+    required: false
+    default: 'values.yaml'
+  commit-message:
+    description: 'Commit Message'
+    required: false
+    default: 'Update GitOps Repo'
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v3
+    with:
+      repository: many-things/gitops
+      ref: main
+      path: gitops
+      token: ${{ inputs.github-token }}
+
+  - name: Update GitOps Repo
+    uses: actions/checkout@v3
+    with:
+      repository: ${{ inputs.gitops-repo }}
+      ref: ${{ inputs.gitops-repo-ref }}
+      path: ${{ inputs.gitops-repo-path }}
+      token: ${{ inputs.github-token }}
+
+  - name: Update GitOps Repo
+    run: |
+      sed -i "/${{ inputs.target-option }}/s|image: .*|image: ${{ inputs.image }}|" ${{ inputs.gitops-repo-path }}/${{ inputs.gitops-repo-file }}
+
+  - name: Commit and push changes
+    run: |
+      cd ${{ inputs.gitops-repo-path }}
+      git config --local user.email "${{ inputs.committer-email }}"
+      git config --local user.name "${{ inputs.committer-name }}"
+      git add .
+      git commit -m "${{ inputs.commit-message }}"
+      git push
