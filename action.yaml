@@ -1,4 +1,4 @@
-name: 'Update GitOps Repo'
+name: 'action-update-gitops-repo'
 description: 'Update GitOps Repo with new image changes'
 inputs:
   target-option:
