@@ -91,3 +91,6 @@ runs:
       git add .
       git commit -m "${{ inputs.commit-message }}"
       git push
+branding:
+  icon: 'activity'
+  color: 'purple'
