@@ -60,6 +60,11 @@ inputs:
       default is 'Update GitOps Repo'
     required: false
     default: 'Update GitOps Repo'
+  max-retries:
+    description: |
+      Max retries to commit 
+    required: false
+    default: 3
 runs:
   using: 'composite'
   steps:
@@ -90,9 +95,22 @@ runs:
       cd ${{ inputs.gitops-repo-path }}
       git config --local user.email "${{ inputs.committer-email }}"
       git config --local user.name "${{ inputs.committer-name }}"
-      git add .
-      git commit -m "${{ inputs.commit-message }}"
-      git push
+
+      for i in $(seq 1 ${{ inputs.max-retries }}); do
+        git add .
+        git commit -m "${{ inputs.commit-message }}"
+        
+        if git push; then
+          echo "Git push successful in $i tries"
+          exit 0
+        fi
+
+        git reset --hard HEAD^
+        git pull
+      done
+      
+      echo "Failed to push changes after ${{ inputs.max-retries }} retries"
+      exit 1
 branding:
   icon: 'activity'
   color: 'purple'

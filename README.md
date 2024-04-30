@@ -61,4 +61,9 @@ inputs:
       default is 'Update GitOps Repo'
     required: false
     default: 'Update GitOps Repo'
+  max-retries:
+    description: |
+      Max retries to commit 
+    required: false
+    default: 3
 ```
